@@ -15,24 +15,27 @@ namespace gr
     {
 
         crc_verif::sptr
-        crc_verif::make(int print_rx_msg, bool output_crc_check)
+        crc_verif::make(int print_rx_msg, bool output_crc_check, bool msg_output_string)
         {
-            return gnuradio::get_initial_sptr(new crc_verif_impl(print_rx_msg, output_crc_check));
+            return gnuradio::get_initial_sptr(new crc_verif_impl(print_rx_msg, output_crc_check, msg_output_string));
         }
 
         /*
          * The private constructor
          */
-        crc_verif_impl::crc_verif_impl(int print_rx_msg, bool output_crc_check)
+        crc_verif_impl::crc_verif_impl(int print_rx_msg, bool output_crc_check, bool msg_output_string)
             : gr::block("crc_verif",
                         gr::io_signature::make(1, 1, sizeof(uint8_t)),
                         gr::io_signature::make2(0, 2, sizeof(uint8_t), sizeof(uint8_t))),
                         print_rx_msg(print_rx_msg),
-                  output_crc_check(output_crc_check)
+                        output_crc_check(output_crc_check),
+                        msg_output_string(msg_output_string)
         {
             message_port_register_out(pmt::mp("msg"));
             set_tag_propagation_policy(TPP_DONT);
             
+            out_meta = pmt::make_dict();
+            out_meta = pmt::dict_add(out_meta, pmt::intern("crc_valid"), pmt::from_bool(true));
         }
 
         /*
@@ -174,7 +177,14 @@ namespace gr
                             std::cout << RED << "CRC invalid" << RESET << std::endl
                                       << std::endl;
                     }
-                    message_port_pub(pmt::intern("msg"), pmt::mp(message_str));
+                    if(msg_output_string){
+                        message_port_pub(pmt::intern("msg"), pmt::mp(message_str));
+                    }
+                    else{
+                        out_vector = pmt::make_blob(&in_buff[0], m_payload_len);
+                        message_port_pub(pmt::intern("msg"), pmt::cons(out_meta, out_vector));
+                    }
+                    
                     in_buff.erase(in_buff.begin(), in_buff.begin()+m_payload_len + 2);
                     if(output_crc_check){
                         produce(0,m_payload_len);
@@ -212,7 +222,13 @@ namespace gr
                     }
                     std::cout << std::endl;
                 }
-                message_port_pub(pmt::intern("msg"), pmt::mp(message_str));
+                if(msg_output_string){
+                    message_port_pub(pmt::intern("msg"), pmt::mp(message_str));
+                }
+                else{
+                    out_vector = pmt::make_blob(&in_buff[0], m_payload_len);
+                    message_port_pub(pmt::intern("msg"), pmt::cons(out_meta, out_vector));
+                }
                 
                 return m_payload_len;
             }

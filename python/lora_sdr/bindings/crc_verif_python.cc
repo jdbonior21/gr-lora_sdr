@@ -16,7 +16,7 @@
 /* BINDTOOL_GEN_AUTOMATIC(0) */
 /* BINDTOOL_USE_PYGCCXML(0) */
 /* BINDTOOL_HEADER_FILE(crc_verif.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(0c1080da98c3ced88d2f4a26b7d592da) */
+/* BINDTOOL_HEADER_FILE_HASH(a0b82770e163e1ad3a2951779c3af696) */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -37,7 +37,7 @@ void bind_crc_verif(py::module &m) {
       m, "crc_verif", D(crc_verif))
 
       .def(py::init(&crc_verif::make), py::arg("print_rx_msg"),
-           py::arg("output_crc_check"), D(crc_verif, make))
+           py::arg("output_crc_check"), py::arg("msg_output_string"), D(crc_verif, make))
 
       ;
 }

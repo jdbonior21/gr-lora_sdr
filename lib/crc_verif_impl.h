@@ -22,6 +22,9 @@ namespace gr {
         bool output_crc_check; ///< output the result of the payload CRC check
         tag_t curent_tag; ///< the most recent tag for the packet we are currently processing
         
+        bool msg_output_string;
+        pmt::pmt_t out_meta;
+        pmt::pmt_t out_vector;
 
         uint32_t cnt=0;///< count the number of frame
 
@@ -44,7 +47,7 @@ namespace gr {
         unsigned int crc16(uint8_t* data, uint32_t len);
 
      public:
-      crc_verif_impl(int print_rx_msg, bool output_crc_check);
+      crc_verif_impl(int print_rx_msg, bool output_crc_check, bool msg_output_string);
       ~crc_verif_impl();
 
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
